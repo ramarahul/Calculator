@@ -14,7 +14,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(R.layout.activity_main)
+        val view = binding.root
+        setContentView(view)
 
         binding.clear.setOnClickListener {
             binding.input.text = ""
@@ -81,11 +82,11 @@ class MainActivity : AppCompatActivity() {
         try {
             val expression = getInputExpression()
             var result = evaluateExpression(expression)
-            if(result.equals("Invalid")){
+            if(result==null){
                 binding.output.text = "Invalid Expression"
                 binding.output.setTextColor(ContextCompat.getColor(this,R.color.red))
             } else{
-                binding.output.text = DecimalFormat("0.######").format(result).toString()
+                binding.output.text = result
                 binding.output.setTextColor(ContextCompat.getColor(this,R.color.green))
             }
 
@@ -97,8 +98,81 @@ class MainActivity : AppCompatActivity() {
 
     private fun evaluateExpression(expression: String): String {
         var result = ""
+        var numbers = ArrayDeque<Int>()
+        var operators = ArrayDeque<Char>()
+        for (c: Char in expression){
+            if(c=='('){
+                operators.addLast(c)
+            } else if(c.isDigit()){
+                numbers.addLast(c-'0');
+            } else if(c==')'){
+                while (operators.last()!='('){
+                    var operator = operators.removeLast()
+                    var v2 = numbers.removeLast()
+                    var v1 = numbers.removeLast()
+                    var number = operation(v1,v2,operator)
+                    numbers.addLast(number)
 
+                }
+                operators.removeLast()
+            } else if(c=='+' || c=='-' || c=='*' || c=='/'){
+                while (!operators.isEmpty() && operators.last()!='(' && precedence(c) <= precedence(operators.last())){
+                    var operator = operators.removeLast()
+                    var v2 = numbers.removeLast()
+                    var v1 = numbers.removeLast()
+                    var number = operation(v1,v2,operator)
+                    numbers.addLast(number)
+                }
+
+                operators.addLast(c)
+            }
+        }
+
+        while (!operators.isEmpty()){
+            var operator = operators.removeLast()
+            var v2 = numbers.removeLast()
+            var v1 = numbers.removeLast()
+            var number = operation(v1,v2,operator)
+            numbers.addLast(number)
+        }
+        result = numbers.removeLastOrNull().toString()
         return result
+    }
+
+    private fun precedence(operator : Char): Int {
+        return when (operator) {
+            '+' -> {
+                1;
+            }
+            '-' -> {
+                1;
+            }
+            '*' -> {
+                2;
+            }
+            '/' -> {
+                2;
+            }
+            else -> 0
+        }
+    }
+
+    private fun operation(v1: Int,v2:Int, operator: Char): Int {
+        return when (operator) {
+            '+' -> {
+                v1 + v2;
+            }
+            '-' -> {
+                v1 - v2;
+            }
+            '*' -> {
+                v1 * v2;
+            }
+            '/' -> {
+                v1 / v2;
+            }
+            else -> 0
+        }
     }
 
     private fun getInputExpression():String{
