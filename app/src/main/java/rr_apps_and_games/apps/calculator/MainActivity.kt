@@ -5,7 +5,6 @@ import android.os.Bundle
 import androidx.core.content.ContextCompat
 import rr_apps_and_games.apps.calculator.databinding.ActivityMainBinding
 import java.lang.Exception
-import java.text.DecimalFormat
 
 class MainActivity : AppCompatActivity() {
 
@@ -58,7 +57,8 @@ class MainActivity : AppCompatActivity() {
             binding.input.text = addToInputText("9")
         }
         binding.buttonDot.setOnClickListener {
-            binding.input.text = addToInputText(".")
+            if(binding.input.text.isNotEmpty())
+                binding.input.text = binding.input.text.subSequence(0,binding.input.text.length -1)
         }
         binding.division.setOnClickListener {
             binding.input.text = addToInputText("/")
@@ -81,58 +81,61 @@ class MainActivity : AppCompatActivity() {
     private fun showResult() {
         try {
             val expression = getInputExpression()
-            var result = evaluateExpression(expression)
-            if(result==null){
-                binding.output.text = "Invalid Expression"
-                binding.output.setTextColor(ContextCompat.getColor(this,R.color.red))
-            } else{
-                binding.output.text = result
-                binding.output.setTextColor(ContextCompat.getColor(this,R.color.green))
-            }
+            val result = evaluateExpression(expression)
+            binding.output.text = result
+            binding.output.setTextColor(ContextCompat.getColor(this,R.color.green))
 
         } catch (e: Exception){
-            binding.output.text = "Error"
+            binding.output.text = getString(R.string.error)
             binding.output.setTextColor(ContextCompat.getColor(this,R.color.red))
         }
     }
 
     private fun evaluateExpression(expression: String): String {
-        var result = ""
-        var numbers = ArrayDeque<Int>()
-        var operators = ArrayDeque<Char>()
-        for (c: Char in expression){
-            if(c=='('){
-                operators.addLast(c)
-            } else if(c.isDigit()){
-                numbers.addLast(c-'0');
-            } else if(c==')'){
+        val result : String
+        val numbers = ArrayDeque<Long>()
+        val operators = ArrayDeque<Char>()
+        var i = 0
+        while (i < expression.length){
+            if(expression[i]=='('){
+                operators.addLast(expression[i])
+            } else if(expression[i].isDigit()){
+                var num = ""
+                num += expression[i]
+                while(i < expression.length - 1 && expression[i+1].isDigit()){
+                    num += expression[i+1]
+                    i += 1
+                }
+                numbers.addLast(num.toLong())
+            } else if(expression[i]==')'){
                 while (operators.last()!='('){
-                    var operator = operators.removeLast()
-                    var v2 = numbers.removeLast()
-                    var v1 = numbers.removeLast()
-                    var number = operation(v1,v2,operator)
+                    val operator = operators.removeLast()
+                    val v2 = numbers.removeLast()
+                    val v1 = numbers.removeLast()
+                    val number = operation(v1,v2,operator)
                     numbers.addLast(number)
 
                 }
                 operators.removeLast()
-            } else if(c=='+' || c=='-' || c=='*' || c=='/'){
-                while (!operators.isEmpty() && operators.last()!='(' && precedence(c) <= precedence(operators.last())){
-                    var operator = operators.removeLast()
-                    var v2 = numbers.removeLast()
-                    var v1 = numbers.removeLast()
-                    var number = operation(v1,v2,operator)
+            } else if(expression[i]=='+' || expression[i]=='-' || expression[i]=='*' || expression[i]=='/'){
+                while (!operators.isEmpty() && operators.last()!='(' && precedence(expression[i]) <= precedence(operators.last())){
+                    val operator = operators.removeLast()
+                    val v2 = numbers.removeLast()
+                    val v1 = numbers.removeLast()
+                    val number = operation(v1,v2,operator)
                     numbers.addLast(number)
                 }
 
-                operators.addLast(c)
+                operators.addLast(expression[i])
             }
+            i++
         }
 
         while (!operators.isEmpty()){
-            var operator = operators.removeLast()
-            var v2 = numbers.removeLast()
-            var v1 = numbers.removeLast()
-            var number = operation(v1,v2,operator)
+            val operator = operators.removeLast()
+            val v2 = numbers.removeLast()
+            val v1 = numbers.removeLast()
+            val number = operation(v1,v2,operator)
             numbers.addLast(number)
         }
         result = numbers.removeLastOrNull().toString()
@@ -142,42 +145,41 @@ class MainActivity : AppCompatActivity() {
     private fun precedence(operator : Char): Int {
         return when (operator) {
             '+' -> {
-                1;
+                1
             }
             '-' -> {
-                1;
+                1
             }
             '*' -> {
-                2;
+                2
             }
             '/' -> {
-                2;
+                2
             }
             else -> 0
         }
     }
 
-    private fun operation(v1: Int,v2:Int, operator: Char): Int {
+    private fun operation(v1: Long,v2:Long, operator: Char): Long {
         return when (operator) {
             '+' -> {
-                v1 + v2;
+                v1 + v2
             }
             '-' -> {
-                v1 - v2;
+                v1 - v2
             }
             '*' -> {
-                v1 * v2;
+                v1 * v2
             }
             '/' -> {
-                v1 / v2;
+                v1 / v2
             }
             else -> 0
         }
     }
 
     private fun getInputExpression():String{
-        var expression = binding.input.text.replace(Regex("/"),"/").replace(Regex("x"),"*")
-        return expression
+        return binding.input.text.replace(Regex("/"),"/").replace(Regex("x"),"*")
     }
 
     private fun addToInputText(buttonValue: String): String{

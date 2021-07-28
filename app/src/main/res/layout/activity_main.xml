@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="end"
-            android:textSize="30sp"
+            android:textSize="50sp"
             android:textColor="@color/white"
             tools:text="5+10-3"/>
 
@@ -31,7 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="end"
-            android:textSize="50sp"
+            android:textSize="70sp"
             android:textColor="@color/green"
             tools:text="12"/>
 
@@ -49,7 +49,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="90dp"
                 style="@style/Button_Style"
-                android:text="C"/>
+                android:background="@color/red"
+                android:text="@string/c"/>
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/bracket_left"
                 android:layout_width="wrap_content"
@@ -162,12 +163,12 @@
                 android:layout_height="90dp"
                 style="@style/Button_Style"
                 android:text="0"/>
-            <androidx.appcompat.widget.AppCompatButton
+            <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/button_dot"
                 android:layout_width="wrap_content"
                 android:layout_height="90dp"
                 style="@style/Button_Style"
-                android:text="."/>
+                android:src="@drawable/ic_backspace" />
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/equals"
                 android:layout_width="0dp"
