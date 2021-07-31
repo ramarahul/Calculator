@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity() {
             binding.input.text = addToInputText("/")
         }
         binding.multiply.setOnClickListener {
-            binding.input.text = addToInputText("x")
+            binding.input.text = addToInputText("*")
         }
         binding.subtract.setOnClickListener {
             binding.input.text = addToInputText("-")
@@ -81,6 +81,11 @@ class MainActivity : AppCompatActivity() {
     private fun showResult() {
         try {
             val expression = getInputExpression()
+            if(expression.isEmpty()){
+                binding.output.text = getString(R.string.enter_an_expression)
+                binding.output.setTextColor(ContextCompat.getColor(this,R.color.red))
+                return
+            }
             val result = evaluateExpression(expression)
             binding.output.text = result
             binding.output.setTextColor(ContextCompat.getColor(this,R.color.green))
@@ -96,6 +101,8 @@ class MainActivity : AppCompatActivity() {
         val numbers = ArrayDeque<Long>()
         val operators = ArrayDeque<Char>()
         var i = 0
+        if(expression[i]=='+')
+            i++
         while (i < expression.length){
             if(expression[i]=='('){
                 operators.addLast(expression[i])
@@ -179,7 +186,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getInputExpression():String{
-        return binding.input.text.replace(Regex("/"),"/").replace(Regex("x"),"*")
+        return binding.input.text.toString()
     }
 
     private fun addToInputText(buttonValue: String): String{

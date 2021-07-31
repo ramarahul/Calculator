@@ -49,7 +49,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="90dp"
                 style="@style/Button_Style"
-                android:background="@color/red"
+                android:textColor="@color/red"
                 android:text="@string/c"/>
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/bracket_left"
@@ -96,7 +96,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="90dp"
                 style="@style/Button_Style"
-                android:text="x"/>
+                android:text="*"/>
         </TableRow>
 
         <TableRow>
