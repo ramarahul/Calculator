@@ -3,8 +3,10 @@ package rr_apps_and_games.apps.calculator
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.core.content.ContextCompat
+import org.mariuszgromada.math.mxparser.Expression
 import rr_apps_and_games.apps.calculator.databinding.ActivityMainBinding
 import java.lang.Exception
+import java.text.DecimalFormat
 
 class MainActivity : AppCompatActivity() {
 
@@ -56,9 +58,12 @@ class MainActivity : AppCompatActivity() {
         binding.button9.setOnClickListener {
             binding.input.text = addToInputText("9")
         }
-        binding.buttonDot.setOnClickListener {
+        binding.backspace.setOnClickListener {
             if(binding.input.text.isNotEmpty())
                 binding.input.text = binding.input.text.subSequence(0,binding.input.text.length -1)
+        }
+        binding.buttonDot.setOnClickListener {
+            binding.input.text = addToInputText(".")
         }
         binding.division.setOnClickListener {
             binding.input.text = addToInputText("/")
@@ -86,9 +91,15 @@ class MainActivity : AppCompatActivity() {
                 binding.output.setTextColor(ContextCompat.getColor(this,R.color.red))
                 return
             }
-            val result = evaluateExpression(expression)
-            binding.output.text = result
-            binding.output.setTextColor(ContextCompat.getColor(this,R.color.green))
+            val result = Expression(expression).calculate()
+            if(result.isNaN()){
+                binding.output.text = getString(R.string.error)
+                binding.output.setTextColor(ContextCompat.getColor(this,R.color.red))
+            }
+            else {
+                binding.output.text = DecimalFormat("0.######").format(result).toString()
+                binding.output.setTextColor(ContextCompat.getColor(this,R.color.green))
+            }
 
         } catch (e: Exception){
             binding.output.text = getString(R.string.error)
